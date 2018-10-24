@@ -22,7 +22,7 @@ Every Angular application starts out with some files to note:
 
     1. package.json - contains the dependencies - the libraries that angular needs in order for your application to work. These all get installed inside the node_modules folder within the project hierarchy.
     2. main.ts file - a file inside the src folder that kickstarts the whole project by bootsrapping the AppModule
-    3. app.module.ts - a file inside the app folder that boostraps the different components in order to render the view, combining the template of the app.component.ts file and the logic of the app.component.ts class file. Styles and Templates can be set inline inside the metadata or linked to a url where that info resides in a separate file.
+    3. app.module.ts - a file inside the app folder that boostraps the different components in order to render the view, combining the template of the app.component.ts file and the logic of the app.component.ts class file. Styles and Templates can be set inline (using backticks for multiple lines) inside the metadata or linked to a url where that info resides in a separate file.
 
 ## 4 Components
 
@@ -31,6 +31,23 @@ A component is made up of a template file and a class file.
 The template uses html to represent the view for the component
 
 The class uses typescript code to represent the data (our model) that is returned by a service and methods. A decorator is used to provide metadata that help Angular recognize the class as a component and tie it together with the selector, styles, and html that are needed to create the view. the @Component decorator is used to define a class as a component and not just something that contains some data or an interface.
+
+## 5 Interpolation
+
+In order to make things in our templates dynamic we will make use of interpolation.  We create a property within our component class file, then reference the property name inside double curly braces in order to get the value of the property to show up dynamically when the template gets rendered in the dom.
+
+Interpolation also allows us to perform some mathematical operations and string concatenations within our template.  For example, given a class property and function such as the ones below, we can do all these things using interpolation:
+
+    public name = "Steve"
+
+    greetUser(){
+        return "Hello " + this.name;
+    }
+
+    <div>{{2+2}}</div>      <div>{{"Welcome " + name}}      <div>{{name.length}}</div>     <div>{{greetUser()}}</div>
+    4                       Welcome Steve                   5                              Welcome Steve
+
+Some things you can't do....assign the result of an expression to a variable, use a global javascript variable such as window.location.url.
 
 ## 6 Property Binding
 
@@ -45,9 +62,58 @@ The follwing html will bind the html element to our class property dynamically, 
 
     |   public myId = "testId";
 
+## 7 Class Binding
+
+Class binding allows us to bind class styles to properties within our class model so that we can assign them through these properties instead of through the class attribute on an html element.  For instance, if our class has styles like this in the css or style section of decorator metada:
+
+    .text-success {
+        color: green;
+    }
+
+    .text-danger {
+        color: red;
+    }
+
+    .text-special {
+        font-style: italic;
+    }
+
+And we define some properties in our component class as so:
+
+    public successClass = "text-success"
+    public hasError = false;
+    public isSpecial = true;
+    public messageClasses = {
+        "text-success": this.hasError,
+        "text-danger": !this.hasError,
+        "text-special": this.isSpecial;
+    }
+
+So now in our template, instead of this:
+
+    <h2 class="text-success">Codevolution</h2>
+
+We can write this:
+
+    <h2 [class]="successClass">Codevolution</h2>
+
+Note that if we tried to use both a class attribute and a property binding, the property binding invalidates the attribute.  We can also conditionally bind a class by using a boolean property and use the class.operator based on whether that property is true or false:
+
+    <h2 [class.text-danger]="hasError">Codevolution</h2>
+
+Since hasError is flase, it will not apply the red class style. If it were true, it would.
+
+There is also an angular class directive that we can use to bind an object with several class properties:
+
+    <h2 [ngClass]="messageClasses">Codevolution</h2>
+
+When it binds the messageClasses object it will evaluate the condition of each of the 
+
+
+
 ## 10 Template reference variables
 
-Allow us to take properties and values from do elements in the template file if/when we need to log or use data entered by the user.
+Allow us to take properties and values from dom elements in the template file if/when we need to log or use data entered by the user.
 
 We create the variable by adding #variableName to the element in the template:
 
