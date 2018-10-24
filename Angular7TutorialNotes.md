@@ -166,7 +166,7 @@ The thing to remember here is that a class should receive its dependencies from 
     2) Register the service with an injector
     3) Declare the service as a dependency in all components that need it
 
-## Creating Services
+## Using Services
 
 Start with the angular CLI and put in the command "ng g s <nameOfService>" which generates a .ts file for your service with a basic service template.  We can add a method to this service class that returns some data in any number of ways - to start we can just hardcode an array of objects and have the method return that array.  Later on we can get into using an api call to bring back an array of objects from a database so that our service is truly dynamic. We also want to declare a property that will hold the data we bring back using our service within any class that we inject the service into.  An example could be "public data = [];". Once we inject the service into our class constructor this array will be filled with the array that our service method returns.
 
@@ -184,4 +184,59 @@ This essentially reads as injecting the local variable _dataService of type Data
 
 Something to note about the service class typescript file is that your need the @injectable decorator at the top of this class in order to allow for a service to rely on other services, ie to have dependencies itself.  If you don't have that decorator you will not be able to inject other services into your service class.
 
-## https://angular.io/api?type=pipe
+## HTTP and Observables - What are they?
+
+When we get data from a DB through a web API we use HTTP, which sends a request to the DB, gets a response, and returns something called an Observable to our service.  It is up to us to cast the Observable into an array or some other collection we can use in our commponents.
+
+An Observable is a sequence of items that arrive asynchrounously over time.  However, when we use an HTTP get request, the Observable is a single item - an HTTP response that arrives asynchrounously.  As mentioned, our service will generally convert that response into an array and then provide it to the components that need it, but we don't necessarily want to provide it to every component within the app, just the ones that need it.  Hence, as with a newspaper company, we only provide the array of data to components that have subscribed to that service/observable.  The component can assign the array of data to a local variable, and then, at that point, it's up to the component to decide what they want to do with the data that gets returned.
+
+RxJS is a library of Reactive Extensions for Javascript that allows us to work with Observables.
+
+## Fetch data using HTTP
+
+We need to import the HTTPClient module in the main app.module.ts file in order to be able to use HTTP Get requests:
+
+    import { HttpClientModule } from '@angular/common/http';
+
+We also want to add "HttpClientModule" in the imports array of our @NgModule metadata. Note that Angular registers the client module as a provider with our injector service so that we do not need to add it to the providers array.
+
+Next we need to import HttpClient in our EmployeeService class and inject a "private http: HttpClient" dependency to our constructor within the service class, which gives us a local variable with which we can refer to an instance of the HttpClient.  
+
+Now there will be four basic steps to returning some data from an API or DB:
+
+1. HTTP Get request from the service.  We can modify our getEmployees() method to use a Get request in order to supply the data.
+
+    private _url: string = "/assets/data/employees.json";
+
+    getEmployees(){ return this.http.get(this._url); }
+
+2. Receive the observable and cast it into an employee array.  Start by creating a new file called employee.ts and use it to create an interface that will cast our data.
+
+    export interface IEmployee {
+        id: number,
+        name: string,
+        age: number
+    }
+
+Once we import the IEmployee from './employee' and the Observable from 'rxjs/Observable' within our EmployeeService class we can modify our getData() method to receive the Observable and convert it into an array of employees:
+
+    getEmployees(): Observable<IEmployee[]>{
+        return this.http.get<IEmployee[]>(this._url);
+    }
+
+3. Subscribe to the observable from EmpList and EmpDetail components which will use some or all of the data we returned by modifying the ngOnInit() method's assignment of the employees property to a method call of our current instance of the employeeService:
+
+    ngOnInit() {
+        this.employees = this._employeeService.getEmployees();
+    }
+
+    CHANGES to
+
+    ngOnInit() {
+        this._employeeService.getEmployees()
+            .subscribe(data => this.employees = data);
+    }
+
+4. The subscribe function takes an argument called data which is returned asynchronously and we use an arrow function to assign that data returned by getEmployees() to the employees property within our EmployeeList.component.
+
+## HTTP Error Handling
