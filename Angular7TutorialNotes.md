@@ -1,3 +1,9 @@
+## 3 Create a new (Hello World) App
+
+Create an angular application by using the angular CLI in the VS Code integrated terminal (or just command prompt):
+
+    ng new hello-world
+
 Once you have the new project created, cd into the folder and then type:
 
     ng serve
@@ -18,7 +24,7 @@ Every Angular application starts out with some files to note:
     2. main.ts file - a file inside the src folder that kickstarts the whole project by bootsrapping the AppModule
     3. app.module.ts - a file inside the app folder that boostraps the different components in order to render the view, combining the template of the app.component.ts file and the logic of the app.component.ts class file. Styles and Templates can be set inline inside the metadata or linked to a url where that info resides in a separate file.
 
-## Components
+## 4 Components
 
 A component is made up of a template file and a class file.
 
@@ -26,7 +32,7 @@ The template uses html to represent the view for the component
 
 The class uses typescript code to represent the data (our model) that is returned by a service and methods. A decorator is used to provide metadata that help Angular recognize the class as a component and tie it together with the selector, styles, and html that are needed to create the view. the @Component decorator is used to define a class as a component and not just something that contains some data or an interface.
 
-## Property Binding
+## 6 Property Binding
 
 Something to consider about html and the dom - There is a difference between attributes and properties:
 
@@ -39,7 +45,7 @@ The follwing html will bind the html element to our class property dynamically, 
 
     |   public myId = "testId";
 
-## Template reference variables
+## 10 Template reference variables
 
 Allow us to take properties and values from do elements in the template file if/when we need to log or use data entered by the user.
 
@@ -50,7 +56,7 @@ We create the variable by adding #variableName to the element in the template:
 
 In this example adding #myInput to our input element allows us to pass the value of the input field to our logging function as a parameter referred to by myInput.value. If we left of the .value property of the myInput variable then we could pass the entire dom element to the function and then we would have to specify within the function that we are going to log just the value property - but we could also log any other available properties or perform other actions besides logging.
 
-## Two Way Binding
+## 11 Two Way Binding
 
 We know that if we want a dom element to display the value of a class property we can use property binding, and if we want text entered by the user to flow to a class and be used in some way we use event binding, but what if we want both, so that our data in the template/dom is always consistent with our data in the class?  We use two way binding.  As an example, say we have a class with the property:
 
@@ -69,7 +75,7 @@ what the ngModel does is bind click events to the name property so that it updat
 
 One thing we have to remember: The ngModel directive is not automatically accessible within angular - we have to be sure we import the Forms module, whithin which the ngModel directive resides, to our app module, then include the forms module in our imports array metadata within the app module so that it can be used by any of the componenets of our app.
 
-## ngIf directive
+## 12 ngIf directive
 
 Next we tackle the first of three DIRECTIVES that help us conditionally control the structure of the dom, the ngIf directive.
 
@@ -97,7 +103,7 @@ Another way we an construct this that is more verbose but perhaps easier to read
 
 This is easily read as "If displayGreeting is true then add thenBlock to the dom, else add elseBlock to the dom.  Clear, but not quite as concise.
 
-## ngSwitch directive
+## 13 ngSwitch directive
 
 This conditional structural control directive is pretty much the same as a switch statement in any other language - it allow us to pick one of several cases based on the input and it will display the appropriate one (or perhaps a default if we don't match a specific case):
 
@@ -112,7 +118,7 @@ This conditional structural control directive is pretty much the same as a switc
 
 In this example the switch cases compare the value of the property "user" to eah case and when they find the match, they display a greeting for that user's name, but if the value of user is none of the cases, it just displays "hello user".
 
-## ngFor directive
+## 14 ngFor directive
 
 The ngFor DIRECTIVE is basically the equivalent of a foreach loop in C# where it allows us to iterate through an array of values that are assigned to a property:
 
@@ -138,7 +144,7 @@ This will interpolate either true or false and add it to the dom based on whethe
 
 Would interpolate either true or false based on whether the "user" is at an even or odd numbered index.  This could be handy if we want to assign different classes to alternating elements in the list of items.
 
-## Sending data back and forth between Parent and Child componenets
+## 15 Component Interaction - Sending data back and forth between Parent and Child componenets
 
 In order to send data to a child component from the main component (AppComponent) we must:
 
@@ -172,7 +178,7 @@ In order to send data to the parent component fro the child component, we must u
 
 WHEWWWWW!
 
-## Pipes
+## 16 Pipes
 
 Pipes are Angular methods that provide some text/number/date formatting for us to help us achieve different display objectives.  We can use them to change caseing of strings, pad or round off numbers, give short or long formatted dates, display json etc.  They generally work by putting a pipe then the name of the pipe and and arguments it takes within an interpolation variable:
 
@@ -195,11 +201,11 @@ There are also pipes for currency, json (helpful if you property contains an obj
 https://angular.io/api?type=pipe
 
 
-## Services
+## 17 Services
 
 Let's say we are going to have multiple child components within an app that all need to access the same data.  We could copy that data into an array or object within each of the child components, but this violates DRY (Don't Repeat Yourself) and SRP (Single Responsibility Principle) - our components are supposed to be responsible for creating views and handling user interaction with those views, not holding or supplying data.  That's a good reason to create a service, which is a class that exists specifically for the purpse of supplying data to other components, sending and retrieving data from a database, and possibly conducting business logic using our data that should not be a part of the view components themselves.  We will create these files as Service.serice.ts and we will use Angular's Dependency Injection framework in order to provide our services to componenets.
 
-## Dependency Injection in Angular
+## 18 Dependency Injection in Angular
 
 The thing to remember here is that a class should receive its dependencies from an outside source rather than instantiating instances of other classes within itself.  We inject the dependencies into the constructor as parameters so that the class has everything it needs as soon as it is instantiated.  When using Angular DI, our process will become:
 
@@ -207,7 +213,7 @@ The thing to remember here is that a class should receive its dependencies from 
     2) Register the service with an injector
     3) Declare the service as a dependency in all components that need it
 
-## Using Services
+## 19 Using Services
 
 Start with the angular CLI and put in the command "ng g s <nameOfService>" which generates a .ts file for your service with a basic service template.  We can add a method to this service class that returns some data in any number of ways - to start we can just hardcode an array of objects and have the method return that array.  Later on we can get into using an api call to bring back an array of objects from a database so that our service is truly dynamic. We also want to declare a property that will hold the data we bring back using our service within any class that we inject the service into.  An example could be "public data = [];". Once we inject the service into our class constructor this array will be filled with the array that our service method returns.
 
@@ -225,7 +231,7 @@ This essentially reads as injecting the local variable _dataService of type Data
 
 Something to note about the service class typescript file is that your need the @injectable decorator at the top of this class in order to allow for a service to rely on other services, ie to have dependencies itself.  If you don't have that decorator you will not be able to inject other services into your service class.
 
-## HTTP and Observables - What are they?
+## 20 HTTP and Observables - What are they?
 
 When we get data from a DB through a web API we use HTTP, which sends a request to the DB, gets a response, and returns something called an Observable to our service.  It is up to us to cast the Observable into an array or some other collection we can use in our commponents.
 
@@ -233,7 +239,7 @@ An Observable is a sequence of items that arrive asynchrounously over time.  How
 
 RxJS is a library of Reactive Extensions for Javascript that allows us to work with Observables.
 
-## Fetch data using HTTP
+## 21 Fetch data using HTTP
 
 We need to import the HTTPClient module in the main app.module.ts file in order to be able to use HTTP Get requests:
 
