@@ -1,3 +1,44 @@
+Once you have the new project created, cd into the folder and then type:
+
+    ng serve
+
+This will make a connection to the localhost and keep a live update version of the project in your browser.
+
+Every Angular application is comprised of some higher level parts: 
+
+    1. Every Angular appication has at least 1 module - the root module, which by convention will be called app.module.ts (AppModule) when you use the Angular CLI to start your project
+    2. Each module is made up of components and services.  Each component makes up a portion of the screen view.  Each application has a root component which will be standardized as app.component.ts (AppComponent.) 
+    3. Each component contains an html template and a class file that help define the view and control the logic.
+    4. A service helps control the business logic that your app runs off of.
+    5. Modules import and export different classes and views in order to render the overall project view on your screen.
+
+Every Angular application starts out with some files to note:
+
+    1. package.json - contains the dependencies - the libraries that angular needs in order for your application to work. These all get installed inside the node_modules folder within the project hierarchy.
+    2. main.ts file - a file inside the src folder that kickstarts the whole project by bootsrapping the AppModule
+    3. app.module.ts - a file inside the app folder that boostraps the different components in order to render the view, combining the template of the app.component.ts file and the logic of the app.component.ts class file. Styles and Templates can be set inline inside the metadata or linked to a url where that info resides in a separate file.
+
+## Components
+
+A component is made up of a template file and a class file.
+
+The template uses html to represent the view for the component
+
+The class uses typescript code to represent the data (our model) that is returned by a service and methods. A decorator is used to provide metadata that help Angular recognize the class as a component and tie it together with the selector, styles, and html that are needed to create the view. the @Component decorator is used to define a class as a component and not just something that contains some data or an interface.
+
+## Property Binding
+
+Something to consider about html and the dom - There is a difference between attributes and properties:
+
+    * Attributes are native to and only really exist in html. Once they initialize a property they no longer exist in the DOM and they will not change even if the property is updated.
+    * Properties are initialized by attributes but then live in the DOM, and as a result, properties can be changed by the user
+
+The follwing html will bind the html element to our class property dynamically, so that any time the class property changes, the html element property changes as well:
+
+    |   <input [id]="myId" type="text" value="SteveB">
+
+    |   public myId = "testId";
+
 ## Template reference variables
 
 Allow us to take properties and values from do elements in the template file if/when we need to log or use data entered by the user.
