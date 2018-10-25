@@ -64,7 +64,7 @@ The follwing html will bind the html element to our class property dynamically, 
 
 ## 7 Class Binding
 
-Class binding allows us to bind class styles to properties within our class model so that we can assign them through these properties instead of through the class attribute on an html element.  For instance, if our class has styles like this in the css or style section of decorator metada:
+Class binding allows us to bind classes to properties within our component model so that we can assign dynamically through these properties instead of through the class attribute on an html element.  For instance, if our class has styles like this in the css file or style section of our decorator metada:
 
     .text-success {
         color: green;
@@ -78,7 +78,7 @@ Class binding allows us to bind class styles to properties within our class mode
         font-style: italic;
     }
 
-And we define some properties in our component class as so:
+And we define some properties in our component class:
 
     public successClass = "text-success"
     public hasError = false;
@@ -89,7 +89,7 @@ And we define some properties in our component class as so:
         "text-special": this.isSpecial;
     }
 
-So now in our template, instead of this:
+Then in our template, instead of this:
 
     <h2 class="text-success">Codevolution</h2>
 
@@ -97,19 +97,90 @@ We can write this:
 
     <h2 [class]="successClass">Codevolution</h2>
 
-Note that if we tried to use both a class attribute and a property binding, the property binding invalidates the attribute.  We can also conditionally bind a class by using a boolean property and use the class.operator based on whether that property is true or false:
+Note that if we tried to use both a class attribute and a property binding, the property binding invalidates the class attribute.  We can also conditionally bind a class by using a boolean property and use the class dot operator based on whether that property is true or false:
 
     <h2 [class.text-danger]="hasError">Codevolution</h2>
 
-Since hasError is flase, it will not apply the red class style. If it were true, it would.
+Since hasError is false, it will not apply the red class style. If it were true, it would.
 
 There is also an angular class directive that we can use to bind an object with several class properties:
 
     <h2 [ngClass]="messageClasses">Codevolution</h2>
 
-When it binds the messageClasses object it will evaluate the condition of each of the 
+When it binds the messageClasses object it will evaluate the condition of each of the properties in the object and then apply the classes they reference appropriately.
 
+## 8 Style Binding
 
+We can bind inline styles to html elements in several ways, the first of which is:
+
+    <h2 [style.color]="'orange'">Style Binding</h2>
+
+Now this doesn't really reference a component property the way the class binding does, but it still allows us to do things dynamically, and even to do it conditionally the way class binding does:
+
+    <h2 [style.color]="hasError ? 'red' : 'green'">Style Binding</h2>
+
+So now depending on what state hasError property is in, we will get a different color. We can also bind the html element style property to a component property as we did with class binding:
+
+    <h2 [style.color]="hightlightColor">Style Binding 2</h2>
+
+This will assign the color property of the element's styling to whatever value assigned to the component property highlightColor.
+
+There is also an ngStyle directive that operates similarly to the ngClass directive, using an object and its properties to assign multiple html element style properties.
+
+    <h2 [ngStyle]="titleStyles">Style Binding<h2>
+
+    public titleStyles = {
+        color: "blue"
+        fontStyle: "italic"
+    }
+
+One thing to remember with this is that property names cannot include hyphens the way css tyles might ordinarily.
+
+## 9 Event Binding
+
+All of these types of binding generally just provide data flow from the component class to the component template, but in order to make a rich user experience we need a mechanism for brining events in the dom to the attention of the component class, which brings us to event binding. We add an event binding to whatever dom element we want to listen for the event on:
+
+    <h2>Welcome {{name}}</h2>
+    <button (click)="onClick()">Greet</button>
+
+This will bind a click event to a method within the component class called onclick():
+
+    onClick(){
+        console.log('Welcome to Codevolution');
+    }
+
+We can also assign properties using an event handler that listens to a dom element:
+
+    public greeting = "";
+
+    onclick(){
+        this.greeting = "Welcome to Codevolution";
+    }
+
+    <h2>Welcome {{name}}</h2>
+    <button (click)="onClick()">Greet</button>
+    {{greeting}}
+
+The interpolation of the greeting property will at first show nothing in the browser because it's assigned to an empty string, but the click event will set the property to an actual string and the interpolation will then update the dom with this property assignment.
+
+At times we may also want to save information about the event - we can track this by passing a paramater to the event handler in our event binding:
+
+    <h2>Welcome {{name}}</h2>
+    <button (click)="onClick($event)">Greet</button>
+    {{greeting}}
+
+    onclick(){
+        console.log(event);
+    }
+
+Logging this event will give us access to all the associated event properties, including type of event, position within the window, the target element, etc. The event becomes a variable and we can access its properties to assign them dynamically.
+
+If the action we want to take upon receiving the event is simple enough, we can even set it within the template element instead of setting an event handler:
+
+    <button (click)="greeting='Welcome User'">Greet</button>
+    {{greeting}}
+
+This simply assigns the greeting property to Welcome User upon receieving a click event instead of calling a handler function.
 
 ## 10 Template reference variables
 
@@ -120,7 +191,7 @@ We create the variable by adding #variableName to the element in the template:
     <input #myInput type="text">
     <button (click="logMessage(myInput.value)")>Log</button>
 
-In this example adding #myInput to our input element allows us to pass the value of the input field to our logging function as a parameter referred to by myInput.value. If we left of the .value property of the myInput variable then we could pass the entire dom element to the function and then we would have to specify within the function that we are going to log just the value property - but we could also log any other available properties or perform other actions besides logging.
+In this example adding #myInput to our input element allows us to pass the value of the input field to our logging function as a parameter referred to by myInput.value. If we left off the .value property of the myInput variable then we could pass the entire dom element to the function and then we would have to specify within the function that we are going to log just the value property - but we could also log any other available properties or perform other actions besides logging.
 
 ## 11 Two Way Binding
 
@@ -353,3 +424,68 @@ Once we import the IEmployee from './employee' and the Observable from 'rxjs/Obs
 4. The subscribe function takes an argument called data which is returned asynchronously and we use an arrow function to assign that data returned by getEmployees() to the employees property within our EmployeeList.component.
 
 ## HTTP Error Handling
+
+In order to handle potential api/internet access errors with our service, we need to modify the getEmployees method to catch and error and throw the appropriate error message to our components, then modify our components to display this error.  We do this with multiple steps:
+
+1. add the catch function to our getEmployees method in the service:
+
+    getEmployees(): Observable<IEmployee[]> {
+    return this.http.get<IEmployee[]>(this._url)
+                    .catch(this.errorHandler);
+    }
+
+2. We obviously then need to define an error handler function in the service as well:
+
+    errorHandler(error: HttpErrorResponse){
+    return Observable.throw(error.message || "Server Error")
+
+    }
+
+3. The errorHandler method which we pass as a parameter to catch throws the error for us.  Now any component that has subscribed to the getEmployees function can be modified to get access to the error if there is an error instead of data returned.  We then assign the error message to a property on our component and bind that property to the view so that it will display an error message if we have one.
+
+## 23 Routing and Navigation
+
+When you create a new Angular application you can add "--routing" to the end of the new app command in angular cli and it will prepare the project for routing, but if you want to add routing to an existing project, you need to do a few things:
+
+    1. add base tag to the head element of index.html file in the app in order to instruct Angular on how to construct the route: <base href="/">
+    2. create a file called app=routing.module.ts within the app folder
+    3. import app routing module within the app.module.ts file and add to imports array:
+        import { AppRoutingModule } from '.app-routing.module';
+
+Once we have a project with routing configured we need to add paths to the routes array within the app-routing.module.ts file:
+
+    const routes: Routes = [
+        { path: 'departments', component: DepartmentListComponent },
+        { path: 'employees', component: EmployeeListComponent }
+    ];
+
+This does about what you would think: it adds 'departments' to the url route for a view that reflects the Department List component and 'employees' for the url route to the Empoloyee List component's view.  Also, since we will have to have these components in the import list at the top of the app-routing module we can export them as a const array from there and remove them from our app.module imports, but add the const to our import from the app-routing.module and declare them in the app module metadata. Best practice to get rid of duplication.  Notice in the template for the main app.component we have a <router-outlet> selector at the bottom.  This is where the application will display the appropriate templet (view) for each component depending on the route we use. If you append /departments to localhost:4200 you will get the view for the department list component and if you append /employees, the employee list view.
+
+We can also create some buttons to put into a nav on our main app page so the user doesn't have to type the url in their browser.  This is as simple as nesting some anchor elements in a nav element and using two handy directives that the routing module gives us - routerLink and routerLinkActive.  routerLink allows us to change the url via a click event and routerLinkActive allows us to apply a style that will highlight whichever route is the current view to make it more user friendly:
+
+    <nav>
+        <a routerLink="/departments" routerLinkActive="active">Departments</a>&nbsp;
+        <a routerLink="/employees" routerLinkActive="active">Employees</a>
+    </nav>
+
+Whatever we set up our nav a.active style to be in our css file will help us highlight which of the buttons is active, making it more obvious to the user what they are seeing.
+
+## 24 Wildcard Route and Redirecting Route (handling bad route exceptions)
+
+If a user tries to append a route that is not configured and is not looking at the console they may be a bit curious why nothing happens.  We can handle this by creating a component and directing all unmatched routes to this component using the wild card route.  This route uses the following object in our routes array in the arouting module:
+
+    { path: "**", component: PageNotFoundComponent }
+
+Don't forget to import the PageNotFoundComponent to the routing module and add it to the export const.  Also note:  THE WILDCARD MUST BE THE LAST ROUTE IN THE routes ARRAY! If it is up higher, the router reads from the top down while trying to find a matching route and any time it gets to the wild card, it will match even if there is a better match below it.  So routes that would be valid will still display the page not found view.
+
+We have one other potential problem - the only route in our routes array that will match the home page (empty route) is the wild card route, but we don't want to display a page not found on the main page!  So we add an empty route at the top of our array and designate a view that we want for our main page:
+
+     { path:'', component: DepartmentListComponent }
+
+Alternately, we can use a directive called redirectTo and the pathMatch property:
+
+    { path:'', redirectTo: '/departments', pathMatch: 'full'}
+
+This will take the empty path and redirect to departments if there is a full match of the path.  The other option is 'prefix' for pathmatch, but since the empty path is a prefix for all other prefixes, we would redirect every path to departments even if we don't want to.
+
+## 25 
