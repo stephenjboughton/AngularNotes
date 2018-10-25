@@ -488,4 +488,58 @@ Alternately, we can use a directive called redirectTo and the pathMatch property
 
 This will take the empty path and redirect to departments if there is a full match of the path.  The other option is 'prefix' for pathmatch, but since the empty path is a prefix for all other prefixes, we would redirect every path to departments even if we don't want to.
 
-## 25 
+## 25 Routing Parameters
+
+So how do we add a parameter on to our routing?  We create another entry in our routing array and add a :<parameterName> after the first part of the path that the parameter represents.  For example, if we want department details for each one of 6 departments, we can create a departmentdetail component and set it up so that our route will go to each detail individually. We start by adding this route after the basic "/departments" route:
+
+    { path: 'departments/:id', component: DepartmentDetailComponent }
+
+We will need to import the departmentdetailcomponent and add it to the export array as well.
+
+Then we bind a click event to each of the departments in the array that our *ngFor iterates over, using an event handler function and passing the department in as a parameter:
+
+    <li (click)="onSelect(department)" *ngFor="let department of departments">
+
+Our event handler function use the router module's navigate() function, so we will need to import that at the top of the component class file and we will inject it into the department-list constructor so that we can then use an instance of it within our event handler:
+
+    onSelect(department) {
+    this.router.navigate(['/departments', department.id]);
+  }
+
+The navigate() function takes a link parameters array as an argument from which Angular constructs the appropriate path. The first part of the array is the path we want Angular to use and the second part is the source of the route parameter. So now that we have this event handler, a click will take us to the correct url route and display a departmentdetailcomponent, but there is a second step here: Reading the id that we used to construct the route and dynamically generating the contents of the detail view based on that id - for which we use the activatedRoute service.
+
+We import the ActivateRoute service in our department-detail component and inject it into department detail constructor.  Once we've done that we can assign a local variable id by looking at the snapshot of the current route (which is an instance of the ActivatedRoute service) and using the paramMap api to get the id from that snapshot.  Of course we need to parse it in order to assign it.
+
+    ngOnInit() {
+        let id = parseInt(this.route.snapshot.paramMap.get('id'));
+        this.departmentId = id;
+    }
+
+Then we can assign that id to a departmentdetail property and bind that property to the view.
+
+## 26 paramMap Observable
+
+There is a drawback to using the snapshot from our ActivatedRoute instance to read the id from our route parameter:  If we were to set up buttons to cycle backwards and forwards through our departments (previous and next for example) the snapshot method will not indicate to Angular that it needs to create a new instance of the component and thus will not run the lifecycle hook that would update the parameter we our bound to.  So we can refactor the code we use to read and bind the id from our ActivatedRoute by importing the ParamMap api from the Router and using ParamMap's get function:
+
+    this.route.paramMap.subscribe((params: ParamMap) => {
+      let id = parseInt(params.get('id'));
+      this.departmentId = id;
+    });
+
+Then we can create two new anchor tags, Next and Previous, which are bound to click events that have goNext and goPrevious handlers to navigate to the appropriate route using our link parameter array to navigate from code and reinitialize the departmentdetail componenet view:
+
+    <h3>You selected department {{departmentId}}</h3>
+    <a (click)="goPrevious()">Previous</a>
+    <a (click)="goNext()">Next</a>
+  
+  
+  goPrevious(){
+    let previousId = this.departmentId - 1;
+    this.router.navigate(['/departments', previousId]);
+  }
+
+  goNext(){
+    let nextId = this.departmentId + 1;
+    this.router.navigate(['/departments', nextId]);
+  }
+
